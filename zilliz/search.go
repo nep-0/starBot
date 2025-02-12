@@ -45,7 +45,7 @@ func Search(client *openai.Client, text string) ([]string, error) {
 	payload, err := json.Marshal(map[string]any{
 		"collectionName": "vv",
 		"data":           [][]float32{resp.Data[0].Embedding},
-		"limit":          4,
+		"limit":          5,
 		"outputFields":   []string{"text", "distance"},
 	})
 	if err != nil {

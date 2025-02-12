@@ -45,13 +45,15 @@ func reply(conf *config.Config) {
 
 		} else {
 			// vv bot
-			_, choice, err := llm.Comment(client, msg.rawMessage)
+			comment, choice, err := llm.Comment(client, msg.rawMessage)
 			if err != nil {
 				sendMsg(msg.groupId, "error generating comment: "+err.Error())
 				continue
 			}
-			// sendMsg(msg.groupId, comment)
-			sendImg(msg.groupId, conf.Static.VvRoot+choice+".png")
+			if fmt.Sprint(msg.groupId) == conf.OneBot.DebugGroup {
+				sendMsg(msg.groupId, comment)
+			}
+			sendImg(msg.groupId, conf.Static.VvRoot+choice+".webp")
 		}
 	}
 
@@ -62,7 +64,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	initOnebot(conf.Openai.ApiKey)
+	initOnebot(conf.OneBot.Endpoint)
 	zilliz.InitZilliz(conf.Zilliz.Url, conf.Zilliz.BearerToken)
 
 	// concurrency: 4

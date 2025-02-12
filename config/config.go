@@ -12,10 +12,11 @@ type Config struct {
 		BearerToken string
 	}
 	OneBot struct {
-		QQ       string
-		Nickname string
-		Listen   string
-		Endpoint string
+		QQ         string
+		Nickname   string
+		Listen     string
+		Endpoint   string
+		DebugGroup string
 	}
 	Static struct {
 		VvRoot string

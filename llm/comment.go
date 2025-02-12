@@ -30,6 +30,14 @@ func Comment(client *openai.Client, query string) (string, string, error) {
 				},
 				{
 					Role:    openai.ChatMessageRoleUser,
+					Content: "我要好好学习，天天向上",
+				},
+				{
+					Role:    openai.ChatMessageRoleAssistant,
+					Content: "就这么办 就这么做",
+				},
+				{
+					Role:    openai.ChatMessageRoleUser,
 					Content: "你很厉害嘛",
 				},
 				{
@@ -58,7 +66,7 @@ func Comment(client *openai.Client, query string) (string, string, error) {
 				},
 				{
 					Role:    openai.ChatMessageRoleAssistant,
-					Content: "下面听众热烈鼓掌",
+					Content: "我说这叫做严重的脑残",
 				},
 				{
 					Role:    openai.ChatMessageRoleUser,
@@ -86,6 +94,14 @@ func Comment(client *openai.Client, query string) (string, string, error) {
 				},
 				{
 					Role:    openai.ChatMessageRoleUser,
+					Content: "你真脑残。",
+				},
+				{
+					Role:    openai.ChatMessageRoleAssistant,
+					Content: "请你现在就道歉",
+				},
+				{
+					Role:    openai.ChatMessageRoleUser,
 					Content: query,
 				},
 			},
@@ -105,11 +121,12 @@ func Comment(client *openai.Client, query string) (string, string, error) {
 		return "", "", fmt.Errorf("error matching: %w", err)
 	}
 
-	comment := resp.Choices[0].Message.Content + "\n"
+	comment := "Debug: " + query + "\n"
+	comment += "Comment: " + resp.Choices[0].Message.Content + "\n"
 	for _, s := range sr {
 		comment += fmt.Sprintf("\n%s", s)
 	}
-	comment += fmt.Sprintf("\n\n检索结果：%s", choice)
+	comment += fmt.Sprintf("\nMatch: %s", choice)
 
 	return comment, choice, nil
 }

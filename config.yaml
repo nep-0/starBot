@@ -9,5 +9,6 @@ oneBot:
   nickname: "bot"
   listen: ":5140"
   endpoint: "http://172.17.0.3:3000"
+  debugGroup: "123456"
 static:
   vvRoot: "https://object-storage-or-local-directory.example.com/data/"
