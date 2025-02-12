@@ -1,0 +1,10 @@
+starBot
+starBot.exe
+
+*.txt
+
+answer.go
+deny.go
+sec.go
+
+test.yaml

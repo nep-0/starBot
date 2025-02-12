@@ -1,0 +1,13 @@
+openai:
+  apiKey: "sk-11145141919810"
+  baseUrl: "https://api.siliconflow.cn/v1"
+zilliz:
+  bearerToken: "hahahahahahahahahahahahahaha"
+  url: "https://hahahahahahahahahahahahahaha.serverless.gcp-us-west1.cloud.zilliz.com/v2/vectordb/entities/search"
+oneBot:
+  qq: "123456"
+  nickname: "bot"
+  listen: ":5140"
+  endpoint: "http://172.17.0.3:3000"
+static:
+  vvRoot: "https://object-storage-or-local-directory.example.com/data/"
