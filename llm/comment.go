@@ -102,6 +102,14 @@ func Comment(client *openai.Client, query string) (string, string, error) {
 				},
 				{
 					Role:    openai.ChatMessageRoleUser,
+					Content: "我要看百合漫画。",
+				},
+				{
+					Role:    openai.ChatMessageRoleAssistant,
+					Content: "这值得高度肯定",
+				},
+				{
+					Role:    openai.ChatMessageRoleUser,
 					Content: query,
 				},
 			},

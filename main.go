@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"slices"
 	"starBot/config"
 	"starBot/llm"
 	"starBot/zilliz"
@@ -50,7 +51,7 @@ func reply(conf *config.Config) {
 				sendMsg(msg.groupId, "error generating comment: "+err.Error())
 				continue
 			}
-			if fmt.Sprint(msg.groupId) == conf.OneBot.DebugGroup {
+			if slices.Contains(conf.OneBot.DebugGroups, fmt.Sprint(msg.groupId)) {
 				sendMsg(msg.groupId, comment)
 			}
 			sendImg(msg.groupId, conf.Static.VvRoot+choice+".webp")
@@ -113,5 +114,6 @@ func main() {
 		}
 		c.JSON(200, nil)
 	})
+	fmt.Println(conf.OneBot.DebugGroups)
 	r.Run(conf.OneBot.Listen)
 }
