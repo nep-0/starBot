@@ -26,24 +26,27 @@ func reply(conf *config.Config) {
 
 	for {
 		msg := <-msgChannel
-		if msg.rawMessage[0:2] == "r1" {
+		if patternHelp(msg.rawMessage) {
+			sendMsg(msg.groupId, "HELP: \n1. r1: Deepseek-R1 锐评。\n2. sim: 语义搜索 vv 表情。\n3. 生成 vv 表情回复。")
+		} else if patternR1(msg.rawMessage) {
 			// r1 bot
-			msg.rawMessage = msg.rawMessage[2:]
+			msg.rawMessage = trimR1(msg.rawMessage)
 			reply, err := llm.R1(client, msg.rawMessage)
 			if err != nil {
 				sendMsg(msg.groupId, "error generating comment: "+err.Error())
 			}
 			sendMsg(msg.groupId, reply)
-
-		} else if msg.rawMessage[0:3] == " r1" {
-			// r1 bot
-			msg.rawMessage = msg.rawMessage[3:]
-			reply, err := llm.R1(client, msg.rawMessage)
+		} else if patternSim(msg.rawMessage) {
+			// sim vv bot
+			msg.rawMessage = trimSim(msg.rawMessage)
+			comment, choice, err := llm.Sim(client, msg.rawMessage)
 			if err != nil {
-				sendMsg(msg.groupId, "error generating comment: "+err.Error())
+				sendMsg(msg.groupId, "error generating sim: "+err.Error())
 			}
-			sendMsg(msg.groupId, reply)
-
+			if slices.Contains(conf.OneBot.DebugGroups, fmt.Sprint(msg.groupId)) {
+				sendMsg(msg.groupId, comment)
+			}
+			sendImg(msg.groupId, conf.Static.VvRoot+choice+".webp")
 		} else {
 			// vv bot
 			comment, choice, err := llm.Comment(client, msg.rawMessage)

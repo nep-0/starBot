@@ -15,10 +15,19 @@ func Comment(client *openai.Client, query string) (string, string, error) {
 			Model:       "Qwen/Qwen2.5-7B-Instruct",
 			Temperature: 0.7,
 			MaxTokens:   512,
+			N:           3,
 			Messages: []openai.ChatCompletionMessage{
 				{
 					Role:    openai.ChatMessageRoleSystem,
-					Content: "无论用户输入什么，用一个张维为风格的语句略带嘲讽地流畅地接上。",
+					Content: "无论用户输入什么，用一个张维为风格的语句辛辣嘲讽地流畅地接上。",
+				},
+				{
+					Role:    openai.ChatMessageRoleUser,
+					Content: "约吗？",
+				},
+				{
+					Role:    openai.ChatMessageRoleAssistant,
+					Content: "给人的感觉是走火入魔了",
 				},
 				{
 					Role:    openai.ChatMessageRoleUser,
@@ -119,7 +128,14 @@ func Comment(client *openai.Client, query string) (string, string, error) {
 		return "", "", fmt.Errorf("error commenting: %w", err)
 	}
 
-	sr, err := zilliz.Search(client, resp.Choices[0].Message.Content)
+	comment := "Debug: " + query + "\n"
+	choices := make([]string, 3)
+	for i := 0; i < 3; i++ {
+		choices[i] = resp.Choices[i].Message.Content
+		comment += "Comment: " + resp.Choices[i].Message.Content + "\n"
+	}
+
+	sr, err := zilliz.Search(client, choices[0]+"\n"+choices[1]+"\n"+choices[2])
 	if err != nil {
 		return "", "", fmt.Errorf("error searching: %w", err)
 	}
@@ -129,8 +145,6 @@ func Comment(client *openai.Client, query string) (string, string, error) {
 		return "", "", fmt.Errorf("error matching: %w", err)
 	}
 
-	comment := "Debug: " + query + "\n"
-	comment += "Comment: " + resp.Choices[0].Message.Content + "\n"
 	for _, s := range sr {
 		comment += fmt.Sprintf("\n%s", s)
 	}

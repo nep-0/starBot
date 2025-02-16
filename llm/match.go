@@ -3,12 +3,14 @@ package llm
 import (
 	"context"
 	"fmt"
+	"slices"
 	"strconv"
 
 	"github.com/sashabaranov/go-openai"
 )
 
 func match(client *openai.Client, query string, candidates []string) (string, error) {
+	slices.Reverse(candidates)
 	msgs := make([]openai.ChatCompletionMessage, 0, 4+len(candidates))
 	msgs = append(msgs, openai.ChatCompletionMessage{
 		Role:    openai.ChatMessageRoleSystem,
@@ -48,11 +50,52 @@ func match(client *openai.Client, query string, candidates []string) (string, er
 
 	index, err := strconv.ParseInt(resp.Choices[0].Message.Content, 10, 64)
 	if err != nil || index < 0 || index >= int64(len(candidates)) {
-		return "", fmt.Errorf("error matching: %w", err)
+		return "", fmt.Errorf("error matching: %s", candidates)
 	}
 	fmt.Println(candidates[index])
 
 	return candidates[index], nil
+}
+
+func semanticMatch(client *openai.Client, query string, candidates []string) (string, error) {
+	slices.Reverse(candidates)
+	msgs := make([]openai.ChatCompletionMessage, 0, 4+len(candidates))
+	msgs = append(msgs, openai.ChatCompletionMessage{
+		Role:    openai.ChatMessageRoleSystem,
+		Content: "请回复以下由“<Response>”“</Response>”包裹的，与“" + query + "”语义最相近的一项。仅回复纯文本，不要包含标签“<”“>”。",
+	})
+	for _, c := range candidates {
+		msgs = append(msgs, openai.ChatCompletionMessage{
+			Role:    openai.ChatMessageRoleUser,
+			Content: "<Response>" + c + "</Response>",
+		})
+	}
+	msgs = append(msgs, openai.ChatCompletionMessage{
+		Role:    openai.ChatMessageRoleUser,
+		Content: "现在请你挑选语义最相近的一项。仅回复纯文本，不要包含标签“<”“>”。",
+	})
+
+	resp, err := client.CreateChatCompletion(
+		context.Background(),
+		openai.ChatCompletionRequest{
+			Model:       "Qwen/Qwen2.5-7B-Instruct",
+			Temperature: 0.7,
+			MaxTokens:   50,
+			Messages:    msgs,
+			N:           3,
+		},
+	)
+	if err != nil {
+		return "", fmt.Errorf("error matching: %w", err)
+	}
+
+	for i := 0; i < 3; i++ {
+		if slices.Contains(candidates, resp.Choices[i].Message.Content) {
+			return resp.Choices[i].Message.Content, nil
+		}
+	}
+
+	return candidates[len(candidates)-1], nil
 }
 
 func directMatch(client *openai.Client, query string, candidates []string) (string, error) {
